@@ -36,36 +36,47 @@ class Interval {
     this->end = end;
   }
 };
-// Not using Heap -----
+// Not using Heap ----- 
+// Binary search the minimum next interval and add to the result
 class NextInterval {
  public:
+  // Returns the correct Index
+  static int binarySearch(vector<pair<Interval,int>> &sortedIntervals, int x )
+  {
+    int len = sortedIntervals.size();
+    if(x > sortedIntervals[len -1].first.start)
+      return -1;
+    int l=0,r = len-1;
+    while(l<=r)
+    {
+      int mid = l + (r-l)/2;
+      if(sortedIntervals[mid].first.start == x)
+        return mid;
+      if(sortedIntervals[mid].first.start < x )
+        l = mid + 1;
+      else
+        r = mid - 1;
+    }
+    return sortedIntervals[l].second;
+  }
+
   static vector<int> findNextInterval(const vector<Interval> &intervals) {
-    int n = intervals.size();
-    vector<int> result(n);
-    vector<pair<Interval,int>> sortedIntervals;
     // TODO: Write your code here
+    vector<pair<Interval,int>> sortedIntervals;
     for(int i=0;i<intervals.size();i++)
     {
       sortedIntervals.push_back(make_pair(intervals[i],i));
     }
-    sort(sortedIntervals.begin(),sortedIntervals.end(),[](pair<Interval,int> &lhs, pair<Interval,int> &rhs)
-    {
-        return lhs.first.start < rhs.first.start;
-    });
+    sort(sortedIntervals.begin(),
+      sortedIntervals.end(),[](pair<Interval,int> &lhs,pair<Interval,int> &rhs){ return lhs.first.start < rhs.first.start;});
+    
+    vector<int> result(intervals.size(),-1);
 
-    for(int i=0;i< sortedIntervals.size()-1;i++)
+    for(int i=0;i< intervals.size();i++)
     {
-      if(sortedIntervals[i+1].first.start >= sortedIntervals[i].first.end )
-      {
-        result[sortedIntervals[i].second] = sortedIntervals[i+1].second;        
-      }
-      else
-      {
-        result[sortedIntervals[i].second] = -1;
-      }
+      result[i] = binarySearch(sortedIntervals,intervals[i].end);
     }
-    result[sortedIntervals[sortedIntervals.size()-1].second] = -1;
-    return result;
+    return result;    
   }
 };
 
@@ -78,11 +89,11 @@ int main(int argc, char *argv[]) {
     cout << index << " ";
   }
   cout << endl;
-
-  /*intervals = {{3, 4}, {1, 5}, {4, 6}};
+  
+  intervals = {{3, 4}, {1, 5}, {4, 6}};
   result = NextInterval::findNextInterval(intervals);
   cout << "Next interval indices are: ";
   for (auto index : result) {
     cout << index << " ";
-  }*/
+  }
 }
